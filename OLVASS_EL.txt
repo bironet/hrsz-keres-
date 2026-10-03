@@ -1,0 +1,21 @@
+HRSZ Kereső – első prototípus
+
+Fájlok:
+- index.html – a mobilos alkalmazás
+- manifest.webmanifest – telepíthető webapp beállításai
+- sw.js – alap offline gyorsítótár
+
+FONTOS:
+A telefon GPS-helymeghatározását a modern böngészők jellemzően csak HTTPS-en engedik.
+Ezért a mappát olyan statikus tárhelyre kell feltölteni, amely HTTPS-t ad
+(pl. GitHub Pages vagy hasonló szolgáltatás).
+
+Jelenlegi funkciók:
+- GPS koordináta lekérése
+- GPS-pontosság kijelzése
+- koordináták másolása
+- hely megnyitása térképen
+- OÉNY HRSZ-kereső megnyitása
+
+Következő fejlesztés:
+GPS-koordináta -> ingatlan/földrészlet -> helyrajzi szám adatkapcsolat.
