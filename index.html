@@ -4,238 +4,57 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1f6f43">
-  <link rel="manifest" href="manifest.webmanifest">
-  <title>HRSZ Kereső – prototípus</title>
+  <title>HRSZ Kereső – teszt</title>
   <style>
-    :root {
-      --bg:#f4f7f5;
-      --card:#ffffff;
-      --text:#16352a;
-      --muted:#65756d;
-      --accent:#1f6f43;
-      --accent2:#2f8d5b;
-      --line:#dbe6df;
-      --warn:#9c5d00;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-    .wrap {
-      max-width:520px;
-      margin:0 auto;
-      min-height:100vh;
-      padding:24px 16px 40px;
-    }
-    .brand {
-      font-weight:800;
-      letter-spacing:.03em;
-      font-size:24px;
-      margin:4px 0 4px;
-    }
-    .sub {
-      color:var(--muted);
-      margin-bottom:18px;
-      font-size:14px;
-    }
-    .card {
-      background:var(--card);
-      border:1px solid var(--line);
-      border-radius:20px;
-      padding:18px;
-      box-shadow:0 8px 24px rgba(0,0,0,.05);
-      margin-bottom:14px;
-    }
-    .locicon { font-size:44px; text-align:center; margin:4px 0 10px; }
-    button, .linkbtn {
-      width:100%;
-      border:0;
-      border-radius:14px;
-      padding:16px 14px;
-      font-size:17px;
-      font-weight:700;
-      cursor:pointer;
-      text-align:center;
-      text-decoration:none;
-      display:block;
-    }
-    .primary { background:var(--accent); color:#fff; }
-    .primary:hover { background:var(--accent2); }
-    .secondary {
-      margin-top:10px;
-      background:#edf5f0;
-      color:var(--accent);
-      border:1px solid #cfe0d5;
-    }
-    .grid {
-      display:grid;
-      grid-template-columns:1fr;
-      gap:10px;
-      margin-top:16px;
-    }
-    .field {
-      background:#f8faf9;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:13px 14px;
-    }
-    .label {
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.06em;
-      color:var(--muted);
-      margin-bottom:4px;
-    }
-    .value {
-      font-size:18px;
-      font-weight:700;
-      word-break:break-word;
-    }
-    .hrsz {
-      font-size:30px;
-      text-align:center;
-      color:var(--accent);
-    }
-    .status {
-      font-size:14px;
-      color:var(--muted);
-      line-height:1.45;
-      margin-top:12px;
-    }
-    .warning { color:var(--warn); font-weight:600; }
-    .small { font-size:12px; color:var(--muted); line-height:1.45; }
-    .hidden { display:none; }
+    :root{--bg:#f4f7f5;--card:#fff;--text:#16352a;--muted:#65756d;--accent:#1f6f43;--line:#dbe6df;--ok:#17663c;--warn:#9c5d00;--bad:#9b2c2c}
+    *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:560px;margin:auto;min-height:100vh;padding:22px 15px 40px} h1{margin:4px 0 2px;font-size:25px}.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.05)}
+    button,a.btn{width:100%;border:0;border-radius:14px;padding:15px 12px;font-size:17px;font-weight:750;display:block;text-align:center;text-decoration:none;cursor:pointer}
+    .primary{background:var(--accent);color:#fff}.secondary{background:#edf5f0;color:var(--accent);border:1px solid #cfe0d5;margin-top:9px}
+    .field{background:#f8faf9;border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-top:10px}.label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}.value{font-size:18px;font-weight:750;word-break:break-word}.hrsz{font-size:30px;color:var(--accent);text-align:center}
+    .status{line-height:1.45;font-size:14px;color:var(--muted);margin-top:12px}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+    pre{white-space:pre-wrap;word-break:break-word;background:#101714;color:#d9f5e3;border-radius:12px;padding:12px;font-size:12px;max-height:280px;overflow:auto}.hidden{display:none}.tiny{font-size:12px;color:var(--muted);line-height:1.45}
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="brand">HRSZ Kereső</div>
-    <div class="sub">Mobil GPS → helyrajzi szám prototípus</div>
-
-    <section class="card">
-      <div class="locicon">📍</div>
-      <button class="primary" id="locateBtn">Helyzet meghatározása</button>
-      <div id="status" class="status">A gomb megnyomásakor a telefon engedélyt kér a helymeghatározáshoz.</div>
-    </section>
-
-    <section id="resultCard" class="card hidden">
-      <div class="grid">
-        <div class="field">
-          <div class="label">Helyrajzi szám</div>
-          <div id="hrsz" class="value hrsz">—</div>
-        </div>
-        <div class="field">
-          <div class="label">Szélesség</div>
-          <div id="lat" class="value">—</div>
-        </div>
-        <div class="field">
-          <div class="label">Hosszúság</div>
-          <div id="lon" class="value">—</div>
-        </div>
-        <div class="field">
-          <div class="label">GPS pontosság</div>
-          <div id="acc" class="value">—</div>
-        </div>
-      </div>
-
-      <button class="secondary" id="copyBtn">Koordináták másolása</button>
-      <a class="linkbtn secondary" id="mapsBtn" href="#" target="_blank" rel="noopener">Térképen mutat</a>
-      <a class="linkbtn secondary" href="https://www.oeny.hu/oeny/hrsz-kereso/" target="_blank" rel="noopener">OÉNY HRSZ-kereső megnyitása</a>
-
-      <p class="status warning" id="accuracyNote"></p>
-      <p class="small">
-        A helyrajzi szám mező ebben az első prototípusban még nincs adatforráshoz kötve.
-        A következő lépés a GPS-koordináta és az ingatlan-nyilvántartási földrészlet összekapcsolása.
-      </p>
-    </section>
-  </main>
-
+<main class="wrap">
+  <h1>HRSZ Kereső – TESZT</h1>
+  <div class="sub">GPS → OÉNY háttérkapcsolat diagnosztikai változat</div>
+  <section class="card">
+    <button id="start" class="primary">📍 GPS + HRSZ teszt indítása</button>
+    <div id="mainStatus" class="status">A program először lekéri a GPS-helyet, majd megkísérli az OÉNY földrészlet-lekérdezést.</div>
+  </section>
+  <section id="result" class="card hidden">
+    <div class="field"><div class="label">Helyrajzi szám</div><div id="hrsz" class="value hrsz">—</div></div>
+    <div class="field"><div class="label">GPS</div><div id="gps" class="value">—</div></div>
+    <div class="field"><div class="label">GPS pontosság</div><div id="acc" class="value">—</div></div>
+    <div class="field"><div class="label">OÉNY kapcsolat</div><div id="oenyState" class="value">—</div></div>
+    <a class="btn secondary" href="https://www.oeny.hu/oeny/hrsz-kereso/" target="_blank" rel="noopener">OÉNY HRSZ-kereső megnyitása</a>
+    <a id="maps" class="btn secondary" href="#" target="_blank" rel="noopener">GPS-pont megnyitása térképen</a>
+  </section>
+  <section class="card"><div class="label">Teszt napló</div><pre id="log">Még nincs teszteredmény.</pre><div class="tiny">Ha „CORS”, „403”, „401”, „Failed to fetch” vagy hasonló üzenet jelenik meg, az azt jelzi, hogy az OÉNY nem engedi a GitHub Pages oldalról a közvetlen hozzáférést.</div></section>
+</main>
 <script>
-const locateBtn = document.getElementById('locateBtn');
-const statusEl = document.getElementById('status');
-const resultCard = document.getElementById('resultCard');
-const latEl = document.getElementById('lat');
-const lonEl = document.getElementById('lon');
-const accEl = document.getElementById('acc');
-const hrszEl = document.getElementById('hrsz');
-const copyBtn = document.getElementById('copyBtn');
-const mapsBtn = document.getElementById('mapsBtn');
-const accuracyNote = document.getElementById('accuracyNote');
-
-let currentCoords = null;
-
-function setStatus(msg) {
-  statusEl.textContent = msg;
-}
-
-function onSuccess(pos) {
-  const { latitude, longitude, accuracy } = pos.coords;
-  currentCoords = { latitude, longitude, accuracy };
-
-  latEl.textContent = latitude.toFixed(7);
-  lonEl.textContent = longitude.toFixed(7);
-  accEl.textContent = `± ${Math.round(accuracy)} m`;
-  hrszEl.textContent = 'adatkapcsolat kell';
-
-  mapsBtn.href = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
-  if (accuracy <= 8) {
-    accuracyNote.textContent = 'A GPS-pontosság jó. Telekhatár közelében ettől még ellenőrzés szükséges.';
-  } else if (accuracy <= 20) {
-    accuracyNote.textContent = 'A GPS-pontosság közepes. Érdemes nyílt ég alatt újra mérni.';
-  } else {
-    accuracyNote.textContent = 'A GPS-pontosság gyenge. Menj nyíltabb helyre és indíts új mérést.';
-  }
-
-  resultCard.classList.remove('hidden');
-  setStatus('A GPS-helyzet sikeresen meghatározva.');
-  locateBtn.textContent = 'Új mérés';
-}
-
-function onError(err) {
-  let msg = 'Nem sikerült meghatározni a helyzetet.';
-  if (err.code === 1) msg = 'A helymeghatározási engedély nincs megadva.';
-  if (err.code === 2) msg = 'A készülék jelenleg nem tud GPS-helyzetet meghatározni.';
-  if (err.code === 3) msg = 'A helymeghatározás túllépte az időkorlátot.';
-  setStatus(msg);
-}
-
-locateBtn.addEventListener('click', () => {
-  if (!navigator.geolocation) {
-    setStatus('Ez a böngésző nem támogatja a helymeghatározást.');
-    return;
-  }
-  setStatus('Helyzet meghatározása…');
-  navigator.geolocation.getCurrentPosition(
-    onSuccess,
-    onError,
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0
-    }
-  );
-});
-
-copyBtn.addEventListener('click', async () => {
-  if (!currentCoords) return;
-  const txt = `${currentCoords.latitude.toFixed(7)}, ${currentCoords.longitude.toFixed(7)}`;
-  try {
-    await navigator.clipboard.writeText(txt);
-    copyBtn.textContent = 'Másolva ✓';
-    setTimeout(() => copyBtn.textContent = 'Koordináták másolása', 1500);
-  } catch {
-    alert(txt);
-  }
-});
-</script>
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
+const WFS_BASE='https://www.oeny.hu/hk-geoserver/hrsz/wfs';
+const TYPE_NAME='hrsz:foldreszlet';
+const startBtn=document.getElementById('start'), mainStatus=document.getElementById('mainStatus'), result=document.getElementById('result'), hrszEl=document.getElementById('hrsz'), gpsEl=document.getElementById('gps'), accEl=document.getElementById('acc'), oenyState=document.getElementById('oenyState'), logEl=document.getElementById('log'), maps=document.getElementById('maps');
+let logs=[];
+function log(msg){const t=new Date().toLocaleTimeString('hu-HU');logs.push(`[${t}] ${msg}`);logEl.textContent=logs.join('\n')}
+function state(text,cls=''){oenyState.textContent=text;oenyState.className='value '+cls}
+function getPosition(){return new Promise((resolve,reject)=>{if(!navigator.geolocation)return reject(new Error('A böngésző nem támogatja a GPS-t.'));navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:20000,maximumAge:0})})}
+function pickHrsz(props){if(!props)return null;const direct=['hrsz','HRSZ','helyrajzi_szam','helyrajziSzam','helyrajziszam'];for(const k of direct){if(props[k]!=null&&String(props[k]).trim())return String(props[k]).trim()}for(const [k,v] of Object.entries(props)){const key=k.toLowerCase();if((key.includes('hrsz')||(key.includes('helyraj')&&key.includes('szam')))&&v!=null&&String(v).trim())return String(v).trim()}return null}
+function buildUrl(lat,lon){const dLat=.00030,dLon=.00045;const p=new URLSearchParams({service:'WFS',version:'1.1.0',request:'GetFeature',typeName:TYPE_NAME,outputFormat:'application/json',srsName:'EPSG:4326',bbox:`${lon-dLon},${lat-dLat},${lon+dLon},${lat+dLat},EPSG:4326`,maxFeatures:'10'});return `${WFS_BASE}?${p.toString()}`}
+async function runTest(){logs=[];logEl.textContent='';hrszEl.textContent='keresés…';state('várakozás…');mainStatus.textContent='GPS-helyzet lekérése…';startBtn.disabled=true;
+try{log('GPS lekérés indul.');const pos=await getPosition();const lat=pos.coords.latitude,lon=pos.coords.longitude,acc=pos.coords.accuracy;result.classList.remove('hidden');gpsEl.textContent=`${lat.toFixed(7)}, ${lon.toFixed(7)}`;accEl.textContent=`± ${Math.round(acc)} m`;maps.href=`https://www.google.com/maps?q=${lat},${lon}`;log(`GPS OK: ${lat.toFixed(7)}, ${lon.toFixed(7)}, pontosság ±${Math.round(acc)} m.`);const url=buildUrl(lat,lon);log('OÉNY WFS lekérdezés indul.');log('Réteg: '+TYPE_NAME);state('kapcsolódás…');let response;
+try{response=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',headers:{'Accept':'application/json'}})}catch(e){state('blokkolva / CORS hiba','bad');hrszEl.textContent='nem érhető el';log('FETCH HIBA: '+(e&&e.message?e.message:String(e)));log('Valószínű ok: az OÉNY nem engedi a közvetlen böngészős lekérdezést más domainről.');mainStatus.textContent='A GPS működik, de az OÉNY háttérkapcsolat közvetlenül blokkolva van.';return}
+log(`HTTP válasz: ${response.status} ${response.statusText}`);log('Content-Type: '+(response.headers.get('content-type')||''));if(!response.ok){const txt=await response.text().catch(()=> '');state(`HTTP ${response.status}`,'bad');hrszEl.textContent='nincs találat';log('Válasz (első 700 karakter):');log(txt.slice(0,700));mainStatus.textContent='A GPS működik, az OÉNY válaszolt, de a lekérdezést nem fogadta el.';return}
+let data;try{data=await response.json()}catch(e){state('nem JSON válasz','warn');hrszEl.textContent='ellenőrzés kell';log('A válasz nem értelmezhető JSON-ként.');mainStatus.textContent='Az OÉNY válaszolt, de nem a várt adatformátumban.';return}
+const features=Array.isArray(data.features)?data.features:[];log(`GeoJSON feature darabszám: ${features.length}.`);if(!features.length){state('elérhető, de nincs feature','warn');hrszEl.textContent='nincs találat';mainStatus.textContent='A kapcsolat működik, de ezen a GPS-környezeten nem érkezett földrészlet.';return}
+for(let i=0;i<Math.min(features.length,5);i++){const props=features[i].properties||{};log(`Feature ${i+1} mezői: ${Object.keys(props).join(', ')}`);const found=pickHrsz(props);if(found){hrszEl.textContent=found;state('SIKERES','ok');log(`HRSZ-jelölt megtalálva: ${found}`);mainStatus.textContent='Siker: földrészlet-adat érkezett és találtunk helyrajzi szám mezőt.';return}}
+state('adat érkezett','warn');hrszEl.textContent='mezőazonosítás kell';log('Első feature properties: '+JSON.stringify(features[0].properties||{},null,2).slice(0,1800));mainStatus.textContent='Jó jel: adat érkezett. A HRSZ mező pontos azonosítása szükséges.'
+}catch(e){const msg=e&&e.message?e.message:String(e);log('ÁLTALÁNOS HIBA: '+msg);mainStatus.textContent='A teszt nem futott végig: '+msg;state('hiba','bad');hrszEl.textContent='—'}finally{startBtn.disabled=false;startBtn.textContent='🔄 Teszt újra'}}
+startBtn.addEventListener('click',runTest);
 </script>
 </body>
 </html>
