@@ -4,111 +4,199 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1f6f43">
-<title>HRSZ Kereső – Lechner API</title>
+<title>HRSZ Kereső – többméréses</title>
 <script src="https://cdn.jsdelivr.net/npm/proj4@2.11.0/dist/proj4.js"></script>
 <style>
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f7f5;color:#16352a}
+:root{--bg:#f4f7f5;--card:#fff;--text:#16352a;--muted:#65756d;--accent:#1f6f43;--line:#dbe6df;--ok:#17663c;--warn:#9c5d00;--bad:#9b2c2c}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
 .wrap{max-width:560px;margin:auto;padding:22px 15px 40px}
-.card{background:#fff;border:1px solid #dbe6df;border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.05)}
-button,a{width:100%;box-sizing:border-box;border:0;border-radius:14px;padding:15px 12px;font-size:17px;font-weight:700;display:block;text-align:center;text-decoration:none}
-button{background:#1f6f43;color:#fff}
-a{background:#edf5f0;color:#1f6f43;border:1px solid #cfe0d5;margin-top:9px}
-.field{background:#f8faf9;border:1px solid #dbe6df;border-radius:13px;padding:12px 13px;margin-top:10px}
-.label{font-size:12px;text-transform:uppercase;color:#65756d}
-.value{font-size:18px;font-weight:700;word-break:break-word}
-.hrsz{font-size:30px;color:#1f6f43;text-align:center}
-pre{white-space:pre-wrap;word-break:break-word;background:#101714;color:#d9f5e3;border-radius:12px;padding:12px;font-size:12px;max-height:300px;overflow:auto}
+h1{margin:4px 0 2px;font-size:25px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.05)}
+button,a.btn{width:100%;box-sizing:border-box;border:0;border-radius:14px;padding:15px 12px;font-size:17px;font-weight:750;display:block;text-align:center;text-decoration:none;cursor:pointer}
+.primary{background:var(--accent);color:#fff}
+.secondary{background:#edf5f0;color:var(--accent);border:1px solid #cfe0d5;margin-top:9px}
+button:disabled{opacity:.65}
+.field{background:#f8faf9;border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-top:10px}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+.value{font-size:18px;font-weight:750;word-break:break-word}
+.hrsz{font-size:30px;color:var(--accent);text-align:center}
+.status{line-height:1.5;font-size:14px;color:var(--muted);margin-top:12px}
+.ok{color:var(--ok);font-weight:700}.warn{color:var(--warn);font-weight:700}.bad{color:var(--bad);font-weight:700}
+.progress{margin-top:14px;background:#e7eee9;border-radius:999px;height:12px;overflow:hidden;border:1px solid #d2ddd6}
+.bar{height:100%;width:0%;background:#1f6f43;transition:width .3s linear}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.stat{background:#f8faf9;border:1px solid var(--line);border-radius:13px;padding:10px}
+.stat .big{font-size:22px;font-weight:800}
+pre{white-space:pre-wrap;word-break:break-word;background:#101714;color:#d9f5e3;border-radius:12px;padding:12px;font-size:12px;max-height:260px;overflow:auto}
 .hidden{display:none}
+.small{font-size:12px;color:var(--muted);line-height:1.45}
 </style>
 </head>
 <body>
 <main class="wrap">
-<h1>HRSZ Kereső – LECHNER API</h1>
-<p>GPS → EOV → hivatalos HRSZ Terminátor API</p>
+<h1>HRSZ Kereső</h1>
+<div class="sub">Többméréses, pontosított GPS-verzió</div>
 
 <section class="card">
-<button id="start">📍 Helyrajzi szám meghatározása</button>
-<p id="status">A gomb megnyomása után a telefon GPS-helyét EOV koordinátára alakítjuk, majd lekérdezzük a Lechner API-ját.</p>
+<button id="start" class="primary">📍 Helyrajzi szám meghatározása</button>
+<div id="status" class="status">A program kb. 15 másodpercig több GPS-mérést gyűjt, majd a legpontosabb pontból kérdezi le a helyrajzi számot.</div>
+<div id="progressBox" class="hidden">
+<div class="progress"><div id="bar" class="bar"></div></div>
+<div class="stats">
+<div class="stat"><div class="label">Mérések</div><div id="count" class="big">0</div></div>
+<div class="stat"><div class="label">Legjobb pontosság</div><div id="bestAcc" class="big">—</div></div>
+</div>
+</div>
 </section>
 
 <section id="result" class="card hidden">
 <div class="field"><div class="label">Település</div><div id="telepules" class="value">—</div></div>
 <div class="field"><div class="label">Helyrajzi szám</div><div id="hrsz" class="value hrsz">—</div></div>
 <div class="field"><div class="label">Fekvés</div><div id="fekves" class="value">—</div></div>
-<div class="field"><div class="label">GPS</div><div id="gps" class="value">—</div></div>
-<div class="field"><div class="label">GPS pontosság</div><div id="acc" class="value">—</div></div>
+<div class="field"><div class="label">Felhasznált GPS-pontosság</div><div id="usedAcc" class="value">—</div></div>
+<div class="field"><div class="label">Felhasznált GPS-koordináta</div><div id="gps" class="value">—</div></div>
 <div class="field"><div class="label">EOV koordináta</div><div id="eov" class="value">—</div></div>
 <div class="field"><div class="label">API kapcsolat</div><div id="apiState" class="value">—</div></div>
-<a id="maps" href="#" target="_blank" rel="noopener">GPS-pont megnyitása térképen</a>
+<div id="qualityNote" class="status"></div>
+<a id="maps" class="btn secondary" href="#" target="_blank" rel="noopener">GPS-pont megnyitása térképen</a>
 </section>
 
 <section class="card">
 <div class="label">Teszt napló</div>
-<pre id="log">Még nincs teszteredmény.</pre>
+<pre id="log">Még nincs mérés.</pre>
+<div class="small">Telekhatár közelében még jó GPS-pontosság mellett is előfordulhat eltérő helyrajzi szám.</div>
 </section>
 </main>
 
 <script>
 const $=id=>document.getElementById(id);
-let logs=[];
+const MEASURE_MS=15000, MIN_SAMPLES=3;
+let logs=[],watchId=null,timer=null,tickTimer=null,samples=[];
+
 function log(m){logs.push("["+new Date().toLocaleTimeString("hu-HU")+"] "+m);$("log").textContent=logs.join("\n")}
-function pos(){return new Promise((ok,bad)=>navigator.geolocation.getCurrentPosition(ok,bad,{enableHighAccuracy:true,timeout:20000,maximumAge:0}))}
+function setStatus(m,c=""){$("status").textContent=m;$("status").className="status "+c}
+function formatFekves(v){const s=String(v??"");if(s==="0")return"belterület";if(s==="1")return"külterület";if(s==="2")return"különleges / egyéb fekvés";return s||"—"}
 
 proj4.defs("EPSG:23700","+proj=somerc +lat_0=47.14439372222222 +lon_0=19.04857177777778 +k_0=0.99993 +x_0=650000 +y_0=200000 +ellps=GRS67 +towgs84=52.17,-71.82,-14.9,-0.312,-0.1063,-0.3729,1.0191 +units=m +no_defs");
 
-$("start").onclick=async()=>{
-  logs=[];$("log").textContent="";$("result").classList.remove("hidden");$("status").textContent="GPS-helyzet lekérése…";$("hrsz").textContent="keresés…";
+function updateStats(){
+  $("count").textContent=samples.length;
+  if(samples.length){
+    const best=samples.reduce((a,b)=>b.accuracy<a.accuracy?b:a);
+    $("bestAcc").textContent="± "+Math.round(best.accuracy)+" m";
+  }else $("bestAcc").textContent="—";
+}
+
+function stopWatch(){
+  if(watchId!==null){navigator.geolocation.clearWatch(watchId);watchId=null}
+  if(timer){clearTimeout(timer);timer=null}
+  if(tickTimer){clearInterval(tickTimer);tickTimer=null}
+}
+
+async function queryHrsz(best){
+  const lat=best.latitude,lon=best.longitude;
+  $("result").classList.remove("hidden");
+  $("gps").textContent=lat.toFixed(7)+", "+lon.toFixed(7);
+  $("usedAcc").textContent="± "+Math.round(best.accuracy)+" m";
+  $("maps").href="https://www.google.com/maps?q="+lat+","+lon;
+
+  const xy=proj4("EPSG:4326","EPSG:23700",[lon,lat]);
+  const y=Math.round(xy[0]*10)/10,x=Math.round(xy[1]*10)/10;
+  $("eov").textContent="Y="+y.toFixed(1)+", X="+x.toFixed(1);
+  log("Felhasznált pont: "+lat.toFixed(7)+", "+lon.toFixed(7)+" ±"+Math.round(best.accuracy)+" m");
+  log("EOV: Y="+y.toFixed(1)+", X="+x.toFixed(1));
+
+  if(best.accuracy<=10){
+    $("qualityNote").textContent="A felhasznált GPS-pontosság jó.";
+    $("qualityNote").className="status ok";
+  }else if(best.accuracy<=20){
+    $("qualityNote").textContent="A mérés használható lehet, de telekhatár közelében érdemes újramérni.";
+    $("qualityNote").className="status warn";
+  }else{
+    $("qualityNote").textContent="A GPS-pontosság gyenge. Az eredményt fenntartással kezeld, és mérj újra nyílt ég alatt.";
+    $("qualityNote").className="status bad";
+  }
+
+  const geojson={type:"Point",coordinates:[y,x]};
+  const url="https://api.lechnerkozpont.hu/hrsz-terminator/api/hrsz?geojson="+encodeURIComponent(JSON.stringify(geojson));
+  $("apiState").textContent="kapcsolódás…";
+  $("hrsz").textContent="keresés…";
+  log("Lechner API lekérdezés indul.");
+
   try{
-    const p=await pos();
-    const lat=p.coords.latitude, lon=p.coords.longitude, acc=p.coords.accuracy;
-    $("gps").textContent=lat.toFixed(7)+", "+lon.toFixed(7);
-    $("acc").textContent="± "+Math.round(acc)+" m";
-    $("maps").href="https://www.google.com/maps?q="+lat+","+lon;
-    log("GPS OK: "+lat.toFixed(7)+", "+lon.toFixed(7)+", ±"+Math.round(acc)+" m");
-
-    const xy=proj4("EPSG:4326","EPSG:23700",[lon,lat]);
-    const y=Math.round(xy[0]*10)/10, x=Math.round(xy[1]*10)/10;
-    $("eov").textContent="Y="+y.toFixed(1)+", X="+x.toFixed(1);
-    log("EOV OK: "+y.toFixed(1)+", "+x.toFixed(1));
-
-    const geojson={type:"Point",coordinates:[y,x]};
-    const url="https://api.lechnerkozpont.hu/hrsz-terminator/api/hrsz?geojson="+encodeURIComponent(JSON.stringify(geojson));
-    $("apiState").textContent="kapcsolódás…";
-    log("Lechner API lekérdezés indul.");
-
     const r=await fetch(url,{headers:{Accept:"application/json"}});
     log("HTTP "+r.status+" "+r.statusText);
     const data=await r.json();
-    log("Válasz: "+JSON.stringify(data));
-
-    if(!r.ok || data.success===false){
+    if(!r.ok||data.success===false){
       $("apiState").textContent="hiba";
       $("hrsz").textContent="nincs találat";
-      $("status").textContent=data.message||"Az API hibát adott.";
+      setStatus(data.message||"Az API hibát adott.","bad");
+      log("API hiba: "+JSON.stringify(data));
       return;
     }
-
     const items=Array.isArray(data.data)?data.data:[];
     if(!items.length){
       $("apiState").textContent="üres válasz";
       $("hrsz").textContent="nincs találat";
-      $("status").textContent="Az API elérhető, de erre a pontra nem érkezett földrészlet.";
+      setStatus("Az API elérhető, de erre a pontra nem érkezett földrészlet.","warn");
       return;
     }
-
     const f=items[0];
     $("telepules").textContent=f.ksh_telepules??"—";
     $("hrsz").textContent=f.hrsz??"—";
-    $("fekves").textContent=String(f.fekves??"—");
+    $("fekves").textContent=formatFekves(f.fekves);
     $("apiState").textContent="SIKERES";
-    $("status").textContent="Siker: a Lechner API visszaadta a helyrajzi számot.";
+    setStatus("Siker: a legpontosabb GPS-mérés alapján megérkezett a helyrajzi szám.","ok");
+    log("Találat: "+JSON.stringify(f));
   }catch(e){
-    $("apiState").textContent="hiba";
+    $("apiState").textContent="kapcsolati hiba";
     $("hrsz").textContent="—";
-    $("status").textContent=e.message||String(e);
-    log("HIBA: "+(e.message||String(e)));
+    setStatus("Az API lekérdezése nem sikerült.","bad");
+    log("API/FETCH hiba: "+(e.message||String(e)));
   }
 }
+
+function finishMeasurement(){
+  stopWatch();
+  if(samples.length<MIN_SAMPLES){
+    setStatus("Túl kevés GPS-mérés érkezett. Próbáld újra nyíltabb helyen.","bad");
+    $("start").disabled=false;$("start").textContent="🔄 Új mérés";return;
+  }
+  const best=samples.reduce((a,b)=>b.accuracy<a.accuracy?b:a);
+  log("Mérés befejezve. Minták: "+samples.length+". Legjobb pontosság: ±"+Math.round(best.accuracy)+" m.");
+  setStatus("GPS-mérés kész. Legjobb pontosság: ±"+Math.round(best.accuracy)+" m. HRSZ lekérdezése…");
+  queryHrsz(best).finally(()=>{$("start").disabled=false;$("start").textContent="🔄 Új mérés"});
+}
+
+function startMeasurement(){
+  if(!navigator.geolocation){setStatus("Ez a böngésző nem támogatja a helymeghatározást.","bad");return}
+  stopWatch();samples=[];logs=[];$("log").textContent="";
+  $("result").classList.add("hidden");$("progressBox").classList.remove("hidden");
+  $("bar").style.width="0%";updateStats();
+  $("start").disabled=true;$("start").textContent="GPS pontosítása…";
+  setStatus("GPS pontosítása… maradj lehetőleg nyílt ég alatt.");
+  log("Többméréses GPS-gyűjtés indul.");
+  const started=Date.now();
+
+  watchId=navigator.geolocation.watchPosition(
+    p=>{
+      const s={latitude:p.coords.latitude,longitude:p.coords.longitude,accuracy:p.coords.accuracy,ts:p.timestamp};
+      samples.push(s);updateStats();log("Mérés "+samples.length+": ±"+Math.round(s.accuracy)+" m");
+    },
+    err=>log("GPS hiba: "+err.code+" "+err.message),
+    {enableHighAccuracy:true,maximumAge:0,timeout:20000}
+  );
+
+  tickTimer=setInterval(()=>{
+    const pct=Math.min(100,(Date.now()-started)/MEASURE_MS*100);
+    $("bar").style.width=pct+"%";
+  },250);
+  timer=setTimeout(finishMeasurement,MEASURE_MS);
+}
+
+$("start").addEventListener("click",startMeasurement);
 </script>
 </body>
 </html>
